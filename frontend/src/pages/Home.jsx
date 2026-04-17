@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Bot, BarChart3, Table2, GitCompareArrows, BookOpen } from 'lucide-react';
+import { Bot, BarChart3, GitCompareArrows, BookOpen } from 'lucide-react';
 import GridWorld from '@/components/rl/GridWorld';
 import ControlPanel from '@/components/rl/ControlPanel';
 import MetricsDashboard from '@/components/rl/MetricsDashboard';

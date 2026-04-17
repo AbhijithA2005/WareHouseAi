@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { CELL, ACTION_ARROWS, getPosFromState } from '@/lib/rl/environment';
+import { CELL, ACTION_ARROWS } from '@/lib/rl/environment';
 import { greedyAction, getStateValue } from '@/lib/rl/agents';
 
 const CELL_COLORS = {

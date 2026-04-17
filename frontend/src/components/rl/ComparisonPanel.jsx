@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { GitCompareArrows, Loader2, CheckCircle2 } from 'lucide-react';
+import { GitCompareArrows, Loader2 } from 'lucide-react';
 import { createTrainer, runBatch } from '@/lib/rl/trainer';
 import TrainingCharts from './TrainingCharts';
 

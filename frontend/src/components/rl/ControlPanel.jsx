@@ -4,7 +4,6 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Play, Pause, RotateCcw, Zap, FlaskConical } from 'lucide-react';
 
 export default function ControlPanel({
