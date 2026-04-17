@@ -14,12 +14,13 @@ export function createTrainer(config) {
     gamma = 0.95,
     epsilon = 1.0,
     epsilonMin = 0.01,
-    epsilonDecay = 0.995,
     alphaDecay = 1.0,
     numEpisodes = 500,
+    isSlippery = false,
+    envType = 'warehouse',
   } = config;
 
-  const env = createEnvironment(gridSize);
+  const env = createEnvironment(gridSize, isSlippery, envType);
   const numStates = getNumStates(env);
   const qTable = createQTable(numStates);
 

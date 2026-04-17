@@ -26,11 +26,11 @@ export default function AlgorithmInfo() {
         <div className="bg-secondary/60 rounded-lg p-3 font-mono text-xs border border-border/50 overflow-x-auto">
           Q(s,a) ← Q(s,a) + α[r + γ·max<sub>a'</sub> Q(s',a') − Q(s,a)]
         </div>
+        <p className="text-[10px] text-accent font-semibold mt-1 italic">Known as the Bellman Optimality Equation update.</p>
         <p className="text-xs text-muted-foreground mt-2">
           Updates Q-values using the <strong className="text-foreground">maximum</strong> Q-value of the next state,
           regardless of which action is actually taken. This makes it <em>off-policy</em> — it learns the optimal
-          policy while following an exploratory (ε-greedy) policy. Generally converges faster but can be less stable in
-          stochastic environments.
+          policy while following an exploratory (ε-greedy) policy.
         </p>
       </InfoSection>
 
@@ -39,6 +39,7 @@ export default function AlgorithmInfo() {
         <div className="bg-secondary/60 rounded-lg p-3 font-mono text-xs border border-border/50 overflow-x-auto">
           Q(s,a) ← Q(s,a) + α[r + γ·Q(s',a') − Q(s,a)]
         </div>
+        <p className="text-[10px] text-accent font-semibold mt-1 italic">Uses the standard Bellman Expectation Equation.</p>
         <p className="text-xs text-muted-foreground mt-2">
           Updates using the Q-value of the <strong className="text-foreground">actual next action</strong> taken
           (State-Action-Reward-State-Action). This makes it <em>on-policy</em> — it evaluates the policy it's
@@ -77,8 +78,16 @@ export default function AlgorithmInfo() {
         <p className="text-xs text-muted-foreground">
           With probability <span className="font-mono text-foreground">ε</span>, choose a random action (explore).
           With probability <span className="font-mono text-foreground">1−ε</span>, choose the best known action (exploit).
-          Epsilon decays over time: <span className="font-mono text-foreground">ε ← ε × decay_rate</span>, ensuring
-          the agent transitions from exploration to exploitation.
+          Ensures the agent doesn't get stuck in local optima.
+        </p>
+      </InfoSection>
+
+      {/* Analysis Reference */}
+      <InfoSection title="Reward Curve Analysis">
+        <p className="text-xs text-muted-foreground">
+          Convergence is analyzed by tracking <strong className="text-foreground">Cumulative Success Rate</strong> (should reach &gt;90%) 
+          and the <strong className="text-foreground">moving average</strong> of episode rewards. A diminishing TD-Error indicates 
+          the agent's Q-values are stabilizing, signaling convergence towards an optimal policy.
         </p>
       </InfoSection>
     </div>

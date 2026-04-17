@@ -24,6 +24,7 @@ const DEFAULT_CONFIG = {
   alphaDecay: 1.0,
   numEpisodes: 500,
   speed: 80,
+  envType: 'warehouse', // 'warehouse', 'frozenlake', 'minigrid'
 };
 
 export default function Home() {
@@ -57,7 +58,8 @@ export default function Home() {
     let t = trainerRef.current;
     if (!t || isPaused === false) {
       // Fresh start
-      t = createTrainer(config);
+      const isSlippery = config.envType === 'frozenlake';
+      t = createTrainer({ ...config, isSlippery });
       trainerRef.current = t;
     }
 
@@ -137,7 +139,8 @@ export default function Home() {
   }, [clearIntervals]);
 
   const handleFastTrain = useCallback(() => {
-    const t = createTrainer(config);
+  const isSlippery = config.envType === 'frozenlake';
+    const t = createTrainer({ ...config, isSlippery });
     trainerRef.current = t;
     setIsRunning(false);
     setIsPaused(false);
@@ -234,7 +237,7 @@ export default function Home() {
                   )}
                 </div>
                 <GridWorld
-                  env={env || createPreviewEnv(config.gridSize)}
+                  env={env || createPreviewEnv(config)}
                   qTable={qTable}
                   showPolicy={showPolicy}
                   showValues={showValues}
@@ -303,6 +306,7 @@ export default function Home() {
 }
 
 // Create a preview environment for before training starts
-function createPreviewEnv(size) {
-  return createEnvironment(size);
+function createPreviewEnv(config) {
+  const isSlippery = config.envType === 'frozenlake';
+  return createEnvironment(config.gridSize, isSlippery);
 }

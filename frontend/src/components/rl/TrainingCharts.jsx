@@ -18,6 +18,68 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
+function MetricsAnalysis({ metrics, comparisonMetrics }) {
+  const analysis = useMemo(() => {
+    const analyze = (m, label) => {
+      if (!m || !m.rewards.length) return null;
+      
+      const successThreshold = 0.9;
+      const convergenceEpisode = m.cumulativeSuccessRate.findIndex(r => r >= successThreshold) + 1;
+      
+      const last50Rewards = m.rewards.slice(-50);
+      const stability = last50Rewards.length > 1 
+        ? Math.sqrt(last50Rewards.reduce((s, r) => s + Math.pow(r - (last50Rewards.reduce((a, b) => a + b, 0) / last50Rewards.length), 2), 0) / last50Rewards.length)
+        : 0;
+
+      return { label, convergenceEpisode, stability };
+    };
+
+    const primary = analyze(metrics, 'Primary');
+    const comparison = analyze(comparisonMetrics, 'Comparison');
+
+    return { primary, comparison };
+  }, [metrics, comparisonMetrics]);
+
+  if (!analysis.primary) return null;
+
+  return (
+    <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-4">
+      <h4 className="text-sm font-bold mb-3 flex items-center gap-2">
+        <span className="w-1.5 h-4 bg-primary rounded-full transition-all" />
+        Automated Performance Analysis
+      </h4>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            <strong className="text-foreground">Convergence:</strong> {analysis.primary.convergenceEpisode > 0 
+              ? `Stabilized at 90% success by episode ${analysis.primary.convergenceEpisode}.` 
+              : "Yet to consolidate at 90% success threshold."}
+            {analysis.comparison && analysis.comparison.convergenceEpisode > 0 && (
+              <span className="block mt-1">
+                {(analysis.primary.convergenceEpisode || 9999) < analysis.comparison.convergenceEpisode 
+                  ? "Primary algorithm reached peak performance faster." 
+                  : "Comparison algorithm converged more rapidly."}
+              </span>
+            )}
+          </p>
+        </div>
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            <strong className="text-foreground">Stability Analysis:</strong> Current reward variance is {analysis.primary.stability.toFixed(2)}.
+            {analysis.comparison && (
+               <span className="block mt-1">
+                 {analysis.primary.stability < analysis.comparison.stability 
+                   ? "Primary policy is currently more stable (less erratic)." 
+                   : "Comparison policy shows higher consistency in rewards."}
+               </span>
+            )}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function TrainingCharts({ metrics, comparisonMetrics }) {
   const rewardData = useMemo(() => {
     const smoothed = movingAverage(metrics.rewards, 20);
@@ -73,7 +135,10 @@ export default function TrainingCharts({ metrics, comparisonMetrics }) {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div className="space-y-4">
+      <MetricsAnalysis metrics={metrics} comparisonMetrics={comparisonMetrics} />
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* Reward Curve */}
       <ChartCard title="Reward per Episode" subtitle="Moving avg (window=20)">
         <ResponsiveContainer width="100%" height={200}>

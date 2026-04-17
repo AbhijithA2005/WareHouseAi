@@ -21,6 +21,41 @@ export default function ControlPanel({
 
   return (
     <div className="space-y-5">
+      {/* Environment Preset */}
+      <div className="space-y-2">
+        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Environment Preset</Label>
+        <Select
+          value={config.envType}
+          onValueChange={(v) => {
+            const updates = { envType: v };
+            if (v === 'frozenlake') {
+              updates.gridSize = 4;
+              updates.numEpisodes = 800;
+            } else if (v === 'warehouse') {
+              updates.gridSize = 8;
+            } else if (v === 'minigrid') {
+              updates.gridSize = 10;
+            }
+            setConfig(prev => ({ ...prev, ...updates }));
+          }}
+          disabled={isRunning}
+        >
+          <SelectTrigger className="bg-secondary/50 border-border/50">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="warehouse">Standard Warehouse (8×8)</SelectItem>
+            <SelectItem value="frozenlake">FrozenLake-v1 (4×4, Slippery)</SelectItem>
+            <SelectItem value="minigrid">MiniGrid (10×10, Sparse)</SelectItem>
+          </SelectContent>
+        </Select>
+        {config.envType === 'frozenlake' && (
+          <p className="text-[10px] text-orange-400 font-medium">
+            Slippery floors enabled! Agent may move perpendicularly.
+          </p>
+        )}
+      </div>
+
       {/* Algorithm Selection */}
       <div className="space-y-2">
         <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Algorithm</Label>

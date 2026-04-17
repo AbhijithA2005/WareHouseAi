@@ -20,11 +20,23 @@ export const ACTION_NAMES = ['Up', 'Down', 'Left', 'Right'];
 export const ACTION_ARROWS = ['↑', '↓', '←', '→'];
 export const ACTION_DELTAS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
-export function createEnvironment(size = 8) {
+export function createEnvironment(size = 8, isSlippery = false, envType = 'warehouse') {
   const grid = Array.from({ length: size }, () => Array(size).fill(CELL.EMPTY));
   
-  // Place walls (warehouse shelves)
-  const walls = generateWalls(size);
+  // Set generation parameters based on environment type
+  let wallDensityRatio = 0.12;
+  let dynamicObsCount = Math.max(1, Math.floor(size * 0.3));
+
+  if (envType === 'frozenlake') {
+    wallDensityRatio = 0.15; // holes/walls in frozenlake
+    dynamicObsCount = 0; // standard frozenlake is static
+  } else if (envType === 'minigrid') {
+    wallDensityRatio = 0.05; // very sparse
+    dynamicObsCount = Math.max(1, Math.floor(size * 0.1));
+  }
+
+  // Place walls (warehouse shelves / frozenlake holes)
+  const walls = generateWalls(size, wallDensityRatio);
   walls.forEach(([r, c]) => { grid[r][c] = CELL.WALL; });
   
   // Start at top-left area, goal at bottom-right area
@@ -34,11 +46,12 @@ export function createEnvironment(size = 8) {
   grid[goal[0]][goal[1]] = CELL.GOAL;
   
   // Place dynamic obstacles
-  const dynamicObs = generateDynamicObstacles(size, grid);
+  const dynamicObs = generateDynamicObstacles(size, grid, dynamicObsCount);
   dynamicObs.forEach(([r, c]) => { grid[r][c] = CELL.DYNAMIC_OBS; });
   
   return {
     size,
+    envType,
     grid: grid.map(row => [...row]),
     originalGrid: grid.map(row => [...row]),
     start,
@@ -51,12 +64,13 @@ export function createEnvironment(size = 8) {
     totalReward: 0,
     path: [[...start]],
     maxSteps: size * size * 3,
+    isSlippery,
   };
 }
 
-function generateWalls(size) {
+function generateWalls(size, densityRatio = 0.12) {
   const walls = [];
-  const wallDensity = Math.floor(size * size * 0.12);
+  const wallDensity = Math.floor(size * size * densityRatio);
   const rng = mulberry32(42); // deterministic seed
   
   for (let i = 0; i < wallDensity; i++) {
@@ -71,9 +85,9 @@ function generateWalls(size) {
   return walls;
 }
 
-function generateDynamicObstacles(size, grid) {
+function generateDynamicObstacles(size, grid, count = 0) {
   const obs = [];
-  const count = Math.max(1, Math.floor(size * 0.3));
+  if (count <= 0) return obs;
   const rng = mulberry32(123);
   
   for (let i = 0; i < count; i++) {
@@ -134,7 +148,21 @@ export function getPosFromState(state, size) {
 export function step(env, action) {
   if (env.done) return { state: getState(env), reward: 0, done: true };
   
-  const [dr, dc] = ACTION_DELTAS[action];
+  let [dr, dc] = ACTION_DELTAS[action];
+
+  // Slippery logic (FrozenLake-v1 style)
+  if (env.isSlippery && !env.done) {
+    const slipChance = 0.2; // 20% chance to slip
+    if (Math.random() < slipChance) {
+      // Perpendicular actions: if action was UP/DOWN, slip LEFT/RIGHT
+      const isVertical = action === 0 || action === 1;
+      const slipAction = isVertical 
+        ? (Math.random() < 0.5 ? 2 : 3) 
+        : (Math.random() < 0.5 ? 0 : 1);
+      [dr, dc] = ACTION_DELTAS[slipAction];
+    }
+  }
+
   const newR = env.agentPos[0] + dr;
   const newC = env.agentPos[1] + dc;
   
