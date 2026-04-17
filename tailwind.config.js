@@ -4,6 +4,10 @@ module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
   	extend: {
+  		fontFamily: {
+  			sans: ['var(--font-sans)'],
+  			mono: ['var(--font-mono)'],
+  		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
@@ -85,5 +89,17 @@ module.exports = {
   		}
   	}
   },
+  safelist: [
+    'bg-primary/10', 'bg-primary/20', 'bg-primary/30', 'bg-primary/5',
+    'bg-secondary', 'bg-secondary/60', 'bg-secondary/80',
+    'bg-accent', 'bg-accent/40', 'bg-accent/60', 'bg-accent/80',
+    'bg-destructive/10', 'bg-destructive/5',
+    'bg-muted', 'bg-muted/60', 'bg-muted/80',
+    'bg-orange-500', 'bg-orange-500/5', 'bg-orange-500/10', 'bg-orange-500/20', 'bg-orange-500/80',
+    'bg-purple-500/10',
+    'text-primary', 'text-accent', 'text-orange-400', 'text-orange-500',
+    'border-primary/20', 'border-primary/30', 'border-primary/40',
+    'border-orange-500/20', 'border-orange-500/30',
+  ],
   plugins: [require("tailwindcss-animate")],
 }
